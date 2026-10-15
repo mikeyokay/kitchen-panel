@@ -33,8 +33,8 @@ button,input,select{font:inherit}
 
 .app{display:flex;flex-direction:column;gap:16px;min-height:100%}
 .left{display:flex;flex-direction:column;gap:16px}
-.clock{font-family:var(--display);font-weight:300;font-size:96px;line-height:.95;letter-spacing:-2px}
-.clock small{font-size:30px;font-weight:500;letter-spacing:0;color:var(--muted);margin-left:8px}
+.clock{font-family:var(--display);font-weight:300;font-size:128px;line-height:.92;letter-spacing:-3px}
+.clock small{font-size:38px;font-weight:500;letter-spacing:0;color:var(--muted);margin-left:8px}
 .date{font-size:22px;color:var(--muted);font-weight:600;margin-top:6px}
 
 .wx{background:var(--panel);border:1px solid var(--line);border-radius:22px;padding:20px;display:flex;flex-direction:column;gap:16px;flex:1}
@@ -50,6 +50,24 @@ button,input,select{font:inherit}
 .day .hi{font-size:22px;font-weight:700;margin-top:4px}
 .day .lo{font-size:15px;color:var(--dim)}
 .day .r{font-size:13px;color:var(--sky);min-height:17px}
+.wk{display:flex;flex-direction:column}
+.wk-row{display:flex;align-items:center;gap:12px;padding:7px 0;border-bottom:1px solid var(--line);font-size:17px}
+.wk-row:last-child{border-bottom:0}
+.wk-row .d{width:58px;font-weight:700;color:var(--muted);font-size:14px;text-transform:uppercase;letter-spacing:.6px}
+.wk-row .ic{width:26px;height:26px;color:var(--sky)} .wk-row .ic svg{width:26px;height:26px}
+.wk-row .r{width:40px;text-align:right;font-size:13px;color:var(--sky)}
+.wk-row .lo{width:36px;text-align:right;color:var(--dim)}
+.wk-row .bar{flex:1;height:8px;border-radius:8px;background:var(--panel-2);position:relative}
+.wk-row .bar span{position:absolute;top:0;bottom:0;border-radius:8px;background:var(--amber)}
+.wk-row .hi{width:36px;font-weight:700}
+.hours{display:flex;gap:6px}
+.hr{flex:1;background:var(--panel-2);border-radius:14px;padding:10px 2px;text-align:center}
+.hr .t{font-size:13px;font-weight:700;color:var(--muted)}
+.hr .ic{display:flex;justify-content:center;margin:6px 0 2px} .hr .ic svg{width:26px;height:26px}
+.hr .v{font-size:21px;font-weight:700}
+.hr .r{font-size:12px;color:var(--sky);min-height:15px}
+.today-text{font-size:20px;line-height:1.45;color:var(--text)}
+.today-night{font-size:17px;line-height:1.45;color:var(--muted);margin-top:10px}
 .foot{font-size:13px;color:var(--dim);display:flex;justify-content:space-between;margin-top:auto}
 .foot.stale{color:var(--amber)}
 
@@ -110,7 +128,7 @@ button,input,select{font:inherit}
           <div class="hl" id="hl"></div>
         </div>
       </div>
-      <div class="days" id="days"></div>
+      <div id="wxbody"></div>
       <div class="foot" id="foot"><span>Westminster, MD</span><span id="upd"></span></div>
     </section>
   </div>
@@ -126,6 +144,8 @@ button,input,select{font:inherit}
 <div class="sheet" id="sheet" hidden>
   <form class="card" id="form">
     <h2>Settings</h2>
+    <p>Weather view</p>
+    <div class="skins" id="wxmodes"></div>
     <p>Colors</p>
     <div class="skins" id="skins"></div>
     <p>Each On and Off button runs the Apple Shortcut with this exact name, spelled the same as in the Shortcuts app.</p>
@@ -162,6 +182,9 @@ button,input,select{font:inherit}
   ];
   var tiles = load("kp.tiles2", DEFAULT_TILES);
   var skin = load("kp.skin", "daylight");
+  var wxMode = load("kp.wxmode", "days");
+  var WXMODES = [["days","5 days"],["week","Full week"],["today","Today"],["hourly","Hourly"]];
+  var WX = null;
 
   function applySkin(){
     if (skin && skin !== "midnight") document.documentElement.setAttribute("data-skin", skin);
@@ -198,6 +221,7 @@ button,input,select{font:inherit}
 
   /* settings */
   function openSheet(){
+    $("wxmodes").innerHTML = WXMODES.map(function(m){ return '<button type="button" data-wx="' + m[0] + '" class="' + (wxMode === m[0] ? "on" : "") + '">' + m[1] + "</button>"; }).join("");
     $("skins").innerHTML = SKINS.map(function(s){ return '<button type="button" data-skin="' + s[0] + '" class="' + (skin === s[0] ? "on" : "") + '">' + s[1] + "</button>"; }).join("");
     $("rows").innerHTML = tiles.map(function(t, i){
       var opts = Object.keys(ICONS).map(function(k){ return '<option value="' + k + '"' + (k === t.icon ? " selected" : "") + ">" + ICONS[k].n + "</option>"; }).join("");
@@ -211,6 +235,11 @@ button,input,select{font:inherit}
   }
   $("gear").addEventListener("click", openSheet);
   $("cancel").addEventListener("click", function(){ $("sheet").hidden = true; });
+  $("wxmodes").addEventListener("click", function(e){
+    var b = e.target.closest ? e.target.closest("button") : null;
+    if (!b) return;
+    wxMode = b.getAttribute("data-wx"); save("kp.wxmode", wxMode); renderWx(); openSheet();
+  });
   $("skins").addEventListener("click", function(e){
     var b = e.target.closest ? e.target.closest("button") : null;
     if (!b) return;
@@ -259,29 +288,59 @@ button,input,select{font:inherit}
       var ic = iconFor(nowP.shortForecast, nowP.isDaytime);
       $("wxicon").innerHTML = svg(WXI[ic], 1.6);
       $("wxicon").firstChild.style.color = ic === "sun" ? "var(--amber)" : (ic === "moon" ? "var(--cool)" : "var(--sky)");
-      // Pair daytime highs with the following night lows.
-      var days = [];
-      for (var i = 0; i < periods.length; i++){
-        var pd = periods[i];
-        if (pd.isDaytime){
-          var night = periods[i + 1] && !periods[i + 1].isDaytime ? periods[i + 1] : null;
-          days.push({name:pd.name, hi:pd.temperature, lo:night ? night.temperature : null, rain:(pd.probabilityOfPrecipitation && pd.probabilityOfPrecipitation.value) || 0});
-        } else if (i === 0){
-          days.push({name:"Tonight", hi:null, lo:pd.temperature, rain:(pd.probabilityOfPrecipitation && pd.probabilityOfPrecipitation.value) || 0});
-        }
-      }
-      var first = days[0];
-      $("hl").textContent = first ? ((first.hi != null ? "High " + first.hi + "°" : "") + (first.hi != null && first.lo != null ? " · " : "") + (first.lo != null ? "Low " + first.lo + "°" : "")) : "";
-      $("days").innerHTML = days.slice(0, 5).map(function(d, i){
-        var label = i === 0 ? (d.name === "Tonight" ? "Tonight" : "Today") : d.name.slice(0, 3);
-        return '<div class="day"><div class="d">' + esc(label) + '</div><div class="hi">' + (d.hi != null ? esc(d.hi) + "°" : "&nbsp;") + '</div><div class="lo">' + (d.lo != null ? esc(d.lo) + "°" : "&nbsp;") + '</div><div class="r">' + (d.rain >= 20 ? esc(d.rain) + "%" : "") + "</div></div>";
-      }).join("");
+      WX = {periods:periods, hourly:hourly};
+      renderWx();
       wxAt = new Date(); ageNote();
     }).catch(function(){
       try { localStorage.removeItem("kp.points.21157"); } catch (e) {}
       if (!wxAt) $("cond").textContent = "Weather unavailable, retrying";
       ageNote();
     });
+  }
+  function rainOf(p){ return (p && p.probabilityOfPrecipitation && p.probabilityOfPrecipitation.value) || 0; }
+  function dayList(periods){
+    var days = [];
+    for (var i = 0; i < periods.length; i++){
+      var pd = periods[i];
+      if (pd.isDaytime){
+        var night = periods[i + 1] && !periods[i + 1].isDaytime ? periods[i + 1] : null;
+        days.push({name:pd.name, hi:pd.temperature, lo:night ? night.temperature : null, rain:rainOf(pd), text:pd.shortForecast, day:true});
+      } else if (i === 0){
+        days.push({name:"Tonight", hi:null, lo:pd.temperature, rain:rainOf(pd), text:pd.shortForecast, day:false});
+      }
+    }
+    return days;
+  }
+  function label(d, i){ return i === 0 ? (d.name === "Tonight" ? "Tonight" : "Today") : d.name.slice(0, 3); }
+  function renderWx(){
+    if (!WX) return;
+    var periods = WX.periods, hourly = WX.hourly, days = dayList(periods), first = days[0], html = "";
+    $("hl").textContent = first ? ((first.hi != null ? "High " + first.hi + "°" : "") + (first.hi != null && first.lo != null ? " · " : "") + (first.lo != null ? "Low " + first.lo + "°" : "")) : "";
+    if (wxMode === "week"){
+      var wk = days.slice(0, 7), vals = [];
+      wk.forEach(function(d){ if (d.hi != null) vals.push(d.hi); if (d.lo != null) vals.push(d.lo); });
+      var mn = Math.min.apply(null, vals), mx = Math.max.apply(null, vals), sp = Math.max(1, mx - mn);
+      html = '<div class="wk">' + wk.map(function(d, i){
+        var lo = d.lo != null ? d.lo : d.hi, hi = d.hi != null ? d.hi : d.lo;
+        var left = (lo - mn) / sp * 100, width = Math.max(4, (hi - lo) / sp * 100);
+        return '<div class="wk-row"><span class="d">' + esc(label(d, i)) + '</span><span class="ic">' + svg(WXI[iconFor(d.text, d.day)], 1.6) + '</span><span class="r">' + (d.rain >= 20 ? esc(d.rain) + "%" : "") +
+          '</span><span class="lo">' + (d.lo != null ? esc(d.lo) + "°" : "") + '</span><span class="bar"><span style="left:' + left.toFixed(1) + "%;width:" + Math.min(100 - left, width).toFixed(1) + '%"></span></span><span class="hi">' + (d.hi != null ? esc(d.hi) + "°" : "") + "</span></div>";
+      }).join("") + "</div>";
+    } else if (wxMode === "today"){
+      var p0 = periods[0], p1 = periods[1];
+      html = (p0 ? '<div class="today-text"><b>' + esc(p0.name) + ":</b> " + esc(p0.detailedForecast) + "</div>" : "") +
+             (p1 ? '<div class="today-night"><b>' + esc(p1.name) + ":</b> " + esc(p1.detailedForecast) + "</div>" : "");
+    } else if (wxMode === "hourly"){
+      html = '<div class="hours">' + hourly.slice(0, 8).map(function(h){
+        var t = new Date(h.startTime), hh = t.getHours(), ap = hh >= 12 ? "p" : "a"; hh = hh % 12 || 12;
+        return '<div class="hr"><div class="t">' + hh + ap + '</div><div class="ic">' + svg(WXI[iconFor(h.shortForecast, h.isDaytime)], 1.6) + '</div><div class="v">' + esc(h.temperature) + '°</div><div class="r">' + (rainOf(h) >= 20 ? esc(rainOf(h)) + "%" : "") + "</div></div>";
+      }).join("") + "</div>";
+    } else {
+      html = '<div class="days">' + days.slice(0, 5).map(function(d, i){
+        return '<div class="day"><div class="d">' + esc(label(d, i)) + '</div><div class="hi">' + (d.hi != null ? esc(d.hi) + "°" : "&nbsp;") + '</div><div class="lo">' + (d.lo != null ? esc(d.lo) + "°" : "&nbsp;") + '</div><div class="r">' + (d.rain >= 20 ? esc(d.rain) + "%" : "") + "</div></div>";
+      }).join("") + "</div>";
+    }
+    $("wxbody").innerHTML = html;
   }
   function ageNote(){
     if (!wxAt){ return; }
