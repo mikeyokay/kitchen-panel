@@ -21,6 +21,9 @@
 }
 :root[data-skin="ember"]{--bg:#17110D;--panel:#221913;--panel-2:#2B2018;--line:#3D2E22;--text:#F7EEE6;--muted:#C4AF9C;--dim:#927C68;--amber:#FF9F43;--sky:#F4C77B;--cool:#E8A6A0;--green:#B8D27A;--sent:#3A2A1E}
 :root[data-skin="forest"]{--bg:#0E1512;--panel:#15201B;--panel-2:#1B2922;--line:#28392F;--text:#E9F2EC;--muted:#A0B8AA;--dim:#728A7C;--amber:#E8C468;--sky:#7FD1B9;--cool:#A7C4F2;--green:#8BD17C;--sent:#22352B}
+:root[data-skin="black"]{--bg:#000000;--panel:#0E0E10;--panel-2:#17171A;--line:#26262B;--text:#F2F2F2;--muted:#A0A0A8;--dim:#6E6E76;--amber:#F2B354;--sky:#7CC4F2;--cool:#9EB6FF;--green:#5FD3A0;--sent:#1C1C20}
+:root[data-skin="navy"]{--bg:#0B1430;--panel:#121D40;--panel-2:#18254D;--line:#25335F;--text:#EEF2FA;--muted:#A3B0CF;--dim:#7180A3;--amber:#F5C060;--sky:#7FB2F5;--cool:#B6C2FF;--green:#6FD6A8;--sent:#1E2B58}
+:root[data-skin="daylight"]{color-scheme:light;--bg:#EEF1EC;--panel:#FFFFFF;--panel-2:#EEF2EC;--line:#D3DBD0;--text:#1C2420;--muted:#55625B;--dim:#76827B;--amber:#B86E00;--sky:#1F78AE;--cool:#4A58BF;--green:#1E8352;--sent:#E4EBE2}
 :root[data-skin="holiday"]{--bg:#0D1712;--panel:#14221A;--panel-2:#1A2B21;--line:#2A3E31;--text:#F4F1E8;--muted:#B5BFA8;--dim:#7E8B75;--amber:#F2C14E;--sky:#F06A6E;--cool:#F2C14E;--green:#6CCB8A;--sent:#24372B}
 html,body{height:100%;margin:0}
 body{background:var(--bg);color:var(--text);font-family:var(--body);-webkit-text-size-adjust:100%;-webkit-user-select:none;user-select:none;
@@ -52,26 +55,28 @@ button,input,select{font:inherit}
 
 .right{display:flex;flex-direction:column;gap:14px;flex:1}
 .tiles{display:flex;flex-direction:column;gap:14px;flex:1}
-.tile{flex:1;min-height:150px;display:flex;align-items:center;gap:26px;padding:24px 30px;border-radius:26px;background:var(--panel);border:2px solid var(--line);color:var(--text);text-decoration:none;-webkit-tap-highlight-color:transparent;-webkit-transition:-webkit-transform .12s,background .2s;transition:transform .12s,background .2s}
-.tile:active{-webkit-transform:scale(.98);transform:scale(.98)}
+.tile{flex:1;min-height:150px;display:flex;align-items:center;gap:20px;padding:20px 22px;border-radius:26px;background:var(--panel);border:2px solid var(--line);color:var(--text);text-decoration:none;-webkit-tap-highlight-color:transparent;-webkit-transition:-webkit-transform .12s,background .2s;transition:transform .12s,background .2s}
 .tile .ic{width:88px;height:88px;border-radius:24px;background:var(--panel-2);display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .tile .ic svg{width:48px;height:48px}
-.tile .name{font-family:var(--display);font-size:34px;font-weight:600;line-height:1.1}
-.tile .hint{font-size:16px;font-weight:700;color:var(--dim);margin-top:6px;min-height:20px}
-.tile.sent{background:var(--sent)}
+.tile .name{font-family:var(--display);font-size:30px;font-weight:600;line-height:1.1}
+.tile .label{flex:1;min-width:0;display:flex;align-items:center;gap:22px}
+.tile .acts{display:flex;gap:12px;flex-shrink:0}
+.act{width:120px;height:96px;border-radius:20px;border:2px solid var(--line);background:var(--panel-2);color:var(--text);font-family:var(--display);font-size:26px;font-weight:600;text-decoration:none;display:flex;align-items:center;justify-content:center;-webkit-tap-highlight-color:transparent}
+.act:active{-webkit-transform:scale(.96);transform:scale(.96)}
+.act.on.b-amber{border-color:var(--amber)} .act.on.b-sky{border-color:var(--sky)} .act.on.b-cool{border-color:var(--cool)} .act.on.b-green{border-color:var(--green)}
+.act.sent{background:var(--sent)}
 .c-amber{color:var(--amber)} .c-sky{color:var(--sky)} .c-cool{color:var(--cool)} .c-green{color:var(--green)}
-.tile.sent.b-amber{border-color:var(--amber)} .tile.sent.b-sky{border-color:var(--sky)} .tile.sent.b-cool{border-color:var(--cool)} .tile.sent.b-green{border-color:var(--green)}
 
 .gear{position:fixed;right:calc(14px + env(safe-area-inset-right,0px));bottom:calc(14px + env(safe-area-inset-bottom,0px));width:52px;height:52px;border-radius:16px;border:1px solid var(--line);background:var(--panel);color:var(--dim);display:flex;align-items:center;justify-content:center}
 .gear svg{width:24px;height:24px}
 
 .sheet{position:fixed;left:0;right:0;top:0;bottom:0;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;padding:16px}
 .sheet[hidden]{display:none}
-.card{background:var(--panel);border:1px solid var(--line);border-radius:22px;padding:22px;width:100%;max-width:720px;max-height:100%;overflow:auto;-webkit-user-select:text;user-select:text}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:22px;padding:22px;width:100%;max-width:900px;max-height:100%;overflow:auto;-webkit-user-select:text;user-select:text}
 .card h2{margin:0 0 6px;font-size:22px}
 .card p{margin:0 0 14px;color:var(--muted);font-size:15px}
 .row{display:flex;gap:10px;margin-bottom:12px;flex-wrap:wrap}
-.f{display:flex;flex-direction:column;gap:4px;flex:1;min-width:180px}
+.f{display:flex;flex-direction:column;gap:4px;flex:1;min-width:150px}
 .f label{font-size:12px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:var(--dim)}
 .f input,.f select{min-height:48px;border-radius:12px;border:1px solid var(--line);background:var(--bg);color:var(--text);padding:0 12px;font-size:17px}
 .skins{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
@@ -106,7 +111,7 @@ button,input,select{font:inherit}
         </div>
       </div>
       <div class="days" id="days"></div>
-      <div class="foot" id="foot"><span>Glenville, NC</span><span id="upd"></span></div>
+      <div class="foot" id="foot"><span>Westminster, MD</span><span id="upd"></span></div>
     </section>
   </div>
   <div class="right">
@@ -123,7 +128,7 @@ button,input,select{font:inherit}
     <h2>Settings</h2>
     <p>Colors</p>
     <div class="skins" id="skins"></div>
-    <p>Each button runs the Apple Shortcut with this exact name.</p>
+    <p>Each On and Off button runs the Apple Shortcut with this exact name, spelled the same as in the Shortcuts app.</p>
     <div id="rows"></div>
     <div class="bar">
       <span class="msg" id="msg"></span>
@@ -149,14 +154,14 @@ button,input,select{font:inherit}
     power:{n:"All off", c:"sky", p:'<path d="M12 3v9"/><path d="M6.4 6.4a8 8 0 1 0 11.2 0"/>'},
     home:{n:"Home", c:"green", p:'<path d="M3 11 12 4l9 7"/><path d="M5 10v10h14V10"/><path d="M10 20v-5h4v5"/>'}
   };
-  var SKINS = [["midnight","Midnight"],["ember","Ember"],["forest","Forest"],["holiday","Holiday"]];
+  var SKINS = [["midnight","Midnight"],["ember","Ember"],["forest","Forest"],["holiday","Holiday"],["navy","Navy"],["black","Black"],["daylight","Daylight"]];
   var DEFAULT_TILES = [
-    {label:"Family Room Lights", shortcut:"Family Room Lights", icon:"bulb"},
-    {label:"Holiday Inside Lights", shortcut:"Holiday Inside Lights", icon:"tree"},
-    {label:"Outside Decorations", shortcut:"Outside Decorations", icon:"star"}
+    {label:"Family Room Lights", on:"Family Room Lights On", off:"Family Room Lights Off", icon:"bulb"},
+    {label:"Holiday Inside Lights", on:"Holiday Inside Lights On", off:"Holiday Inside Lights Off", icon:"tree"},
+    {label:"Outside Decorations", on:"Outside Decorations On", off:"Outside Decorations Off", icon:"star"}
   ];
-  var tiles = load("kp.tiles", DEFAULT_TILES);
-  var skin = load("kp.skin", "midnight");
+  var tiles = load("kp.tiles2", DEFAULT_TILES);
+  var skin = load("kp.skin", "daylight");
 
   function applySkin(){
     if (skin && skin !== "midnight") document.documentElement.setAttribute("data-skin", skin);
@@ -177,16 +182,17 @@ button,input,select{font:inherit}
   function renderTiles(){
     $("tiles").innerHTML = tiles.map(function(t, i){
       var ic = ICONS[t.icon] || ICONS.bulb;
-      return '<a class="tile b-' + ic.c + '" data-i="' + i + '" href="shortcuts://run-shortcut?name=' + encodeURIComponent(t.shortcut) + '">' +
-        '<span class="ic c-' + ic.c + '">' + svg(ic.p) + '</span><span><span class="name" style="display:block">' + esc(t.label) + '</span><span class="hint" style="display:block"></span></span></a>';
+      var run = function(n){ return "shortcuts://run-shortcut?name=" + encodeURIComponent(n); };
+      return '<div class="tile"><div class="label"><span class="ic c-' + ic.c + '">' + svg(ic.p) + '</span><span class="name">' + esc(t.label) + '</span></div>' +
+        '<div class="acts"><a class="act on b-' + ic.c + '" href="' + esc(run(t.on)) + '" aria-label="' + esc(t.label) + ' on">On</a>' +
+        '<a class="act" href="' + esc(run(t.off)) + '" aria-label="' + esc(t.label) + ' off">Off</a></div></div>';
     }).join("");
   }
   $("tiles").addEventListener("click", function(e){
-    var a = e.target.closest ? e.target.closest(".tile") : null;
+    var a = e.target.closest ? e.target.closest(".act") : null;
     if (!a) return;
-    var hint = a.querySelector(".hint");
-    a.classList.add("sent"); hint.textContent = "Running…";
-    setTimeout(function(){ a.classList.remove("sent"); hint.textContent = ""; }, 2500);
+    a.classList.add("sent");
+    setTimeout(function(){ a.classList.remove("sent"); }, 2000);
   });
 
   /* settings */
@@ -194,8 +200,9 @@ button,input,select{font:inherit}
     $("skins").innerHTML = SKINS.map(function(s){ return '<button type="button" data-skin="' + s[0] + '" class="' + (skin === s[0] ? "on" : "") + '">' + s[1] + "</button>"; }).join("");
     $("rows").innerHTML = tiles.map(function(t, i){
       var opts = Object.keys(ICONS).map(function(k){ return '<option value="' + k + '"' + (k === t.icon ? " selected" : "") + ">" + ICONS[k].n + "</option>"; }).join("");
-      return '<div class="row"><div class="f"><label for="l' + i + '">Button ' + (i + 1) + '</label><input id="l' + i + '" value="' + esc(t.label) + '" maxlength="28"></div>' +
-        '<div class="f"><label for="s' + i + '">Shortcut name</label><input id="s' + i + '" value="' + esc(t.shortcut) + '" maxlength="80" autocapitalize="off" autocorrect="off"></div>' +
+      return '<div class="row"><div class="f"><label for="l' + i + '">Row ' + (i + 1) + ' name</label><input id="l' + i + '" value="' + esc(t.label) + '" maxlength="28"></div>' +
+        '<div class="f"><label for="n' + i + '">On shortcut</label><input id="n' + i + '" value="' + esc(t.on) + '" maxlength="80" autocapitalize="off" autocorrect="off"></div>' +
+        '<div class="f"><label for="o' + i + '">Off shortcut</label><input id="o' + i + '" value="' + esc(t.off) + '" maxlength="80" autocapitalize="off" autocorrect="off"></div>' +
         '<div class="f" style="flex:.6;min-width:140px"><label for="c' + i + '">Icon</label><select id="c' + i + '">' + opts + "</select></div></div>";
     }).join("");
     $("msg").textContent = "";
@@ -210,13 +217,13 @@ button,input,select{font:inherit}
   });
   $("form").addEventListener("submit", function(e){
     e.preventDefault();
-    var next = tiles.map(function(t, i){ return {label:$("l" + i).value.trim(), shortcut:$("s" + i).value.trim(), icon:$("c" + i).value}; });
-    for (var i = 0; i < next.length; i++){ if (!next[i].label || !next[i].shortcut){ $("msg").textContent = "Button " + (i + 1) + " needs a name and a shortcut name."; return; } }
-    tiles = next; save("kp.tiles", tiles); renderTiles(); $("sheet").hidden = true;
+    var next = tiles.map(function(t, i){ return {label:$("l" + i).value.trim(), on:$("n" + i).value.trim(), off:$("o" + i).value.trim(), icon:$("c" + i).value}; });
+    for (var i = 0; i < next.length; i++){ if (!next[i].label || !next[i].on || !next[i].off){ $("msg").textContent = "Row " + (i + 1) + " needs a name and both shortcut names."; return; } }
+    tiles = next; save("kp.tiles2", tiles); renderTiles(); $("sheet").hidden = true;
   });
 
   /* weather from the National Weather Service */
-  var LAT = 35.17, LON = -83.13, wxAt = null;
+  var LAT = 39.5754, LON = -76.9958, wxAt = null;
   var WXI = {
     sun:'<circle cx="12" cy="12" r="4.5"/><path d="M12 1.5v2.5M12 20v2.5M4.6 4.6l1.8 1.8M17.6 17.6l1.8 1.8M1.5 12H4M20 12h2.5M4.6 19.4l1.8-1.8M17.6 6.4l1.8-1.8"/>',
     moon:'<path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5Z"/>',
@@ -237,9 +244,9 @@ button,input,select{font:inherit}
     return fetch(url, {headers:{"Accept":"application/geo+json"}}).then(function(r){ if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); });
   }
   function refreshWeather(){
-    var pts = load("kp.points", null);
+    var pts = load("kp.points.21157", null);
     var p = pts ? Promise.resolve(pts) : getJSON("https://api.weather.gov/points/" + LAT + "," + LON).then(function(j){
-      var v = {forecast:j.properties.forecast, hourly:j.properties.forecastHourly}; save("kp.points", v); return v;
+      var v = {forecast:j.properties.forecast, hourly:j.properties.forecastHourly}; save("kp.points.21157", v); return v;
     });
     p.then(function(v){
       return Promise.all([getJSON(v.forecast), getJSON(v.hourly)]);
@@ -270,7 +277,7 @@ button,input,select{font:inherit}
       }).join("");
       wxAt = new Date(); ageNote();
     }).catch(function(){
-      try { localStorage.removeItem("kp.points"); } catch (e) {}
+      try { localStorage.removeItem("kp.points.21157"); } catch (e) {}
       if (!wxAt) $("cond").textContent = "Weather unavailable, retrying";
       ageNote();
     });
