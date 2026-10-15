@@ -1,0 +1,296 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Kitchen">
+<title>Kitchen Panel</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@300;500;600&family=Manrope:wght@500;600;700&display=swap">
+<style>
+/* Standalone kitchen panel, built for older Safari (iPadOS 15). Left: clock and weather. Right: three very large shortcut buttons. */
+:root{
+  --bg:#0F1419; --panel:#171E26; --panel-2:#1D2630; --line:#2A3542;
+  --text:#EEF2F6; --muted:#9AA8B8; --dim:#6F7F91;
+  --amber:#F2B354; --sky:#7CC4F2; --cool:#9EB6FF; --green:#5FD3A0;
+  --sent:#24303C;
+  --display:"Sora","Manrope",-apple-system,system-ui,sans-serif;
+  --body:"Manrope",-apple-system,system-ui,sans-serif;
+  color-scheme:dark;
+}
+:root[data-skin="ember"]{--bg:#17110D;--panel:#221913;--panel-2:#2B2018;--line:#3D2E22;--text:#F7EEE6;--muted:#C4AF9C;--dim:#927C68;--amber:#FF9F43;--sky:#F4C77B;--cool:#E8A6A0;--green:#B8D27A;--sent:#3A2A1E}
+:root[data-skin="forest"]{--bg:#0E1512;--panel:#15201B;--panel-2:#1B2922;--line:#28392F;--text:#E9F2EC;--muted:#A0B8AA;--dim:#728A7C;--amber:#E8C468;--sky:#7FD1B9;--cool:#A7C4F2;--green:#8BD17C;--sent:#22352B}
+:root[data-skin="black"]{--bg:#000000;--panel:#0E0E10;--panel-2:#17171A;--line:#26262B;--text:#F2F2F2;--muted:#A0A0A8;--dim:#6E6E76;--amber:#F2B354;--sky:#7CC4F2;--cool:#9EB6FF;--green:#5FD3A0;--sent:#1C1C20}
+:root[data-skin="navy"]{--bg:#0B1430;--panel:#121D40;--panel-2:#18254D;--line:#25335F;--text:#EEF2FA;--muted:#A3B0CF;--dim:#7180A3;--amber:#F5C060;--sky:#7FB2F5;--cool:#B6C2FF;--green:#6FD6A8;--sent:#1E2B58}
+:root[data-skin="daylight"]{color-scheme:light;--bg:#EEF1EC;--panel:#FFFFFF;--panel-2:#EEF2EC;--line:#D3DBD0;--text:#1C2420;--muted:#55625B;--dim:#76827B;--amber:#B86E00;--sky:#1F78AE;--cool:#4A58BF;--green:#1E8352;--sent:#E4EBE2}
+:root[data-skin="holiday"]{--bg:#0D1712;--panel:#14221A;--panel-2:#1A2B21;--line:#2A3E31;--text:#F4F1E8;--muted:#B5BFA8;--dim:#7E8B75;--amber:#F2C14E;--sky:#F06A6E;--cool:#F2C14E;--green:#6CCB8A;--sent:#24372B}
+html,body{height:100%;margin:0}
+body{background:var(--bg);color:var(--text);font-family:var(--body);-webkit-text-size-adjust:100%;-webkit-user-select:none;user-select:none;
+  padding:calc(16px + env(safe-area-inset-top,0px)) calc(16px + env(safe-area-inset-right,0px)) calc(16px + env(safe-area-inset-bottom,0px)) calc(16px + env(safe-area-inset-left,0px));box-sizing:border-box}
+*{box-sizing:border-box}
+button,input,select{font:inherit}
+
+.app{display:flex;flex-direction:column;gap:16px;min-height:100%}
+.left{display:flex;flex-direction:column;gap:16px}
+.clock{font-family:var(--display);font-weight:300;font-size:96px;line-height:.95;letter-spacing:-2px}
+.clock small{font-size:30px;font-weight:500;letter-spacing:0;color:var(--muted);margin-left:8px}
+.date{font-size:22px;color:var(--muted);font-weight:600;margin-top:6px}
+
+.wx{background:var(--panel);border:1px solid var(--line);border-radius:22px;padding:20px;display:flex;flex-direction:column;gap:16px;flex:1}
+.now{display:flex;align-items:center;gap:16px}
+.now svg{width:68px;height:68px;color:var(--amber);flex-shrink:0}
+.temp{font-family:var(--display);font-size:76px;font-weight:300;line-height:1}
+.temp sup{font-size:30px;color:var(--muted);vertical-align:top}
+.cond{font-size:22px;font-weight:700}
+.hl{font-size:18px;color:var(--muted);margin-top:2px}
+.days{display:flex;gap:8px}
+.day{flex:1;background:var(--panel-2);border-radius:14px;padding:10px 4px;text-align:center}
+.day .d{font-size:13px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--muted)}
+.day .hi{font-size:22px;font-weight:700;margin-top:4px}
+.day .lo{font-size:15px;color:var(--dim)}
+.day .r{font-size:13px;color:var(--sky);min-height:17px}
+.foot{font-size:13px;color:var(--dim);display:flex;justify-content:space-between;margin-top:auto}
+.foot.stale{color:var(--amber)}
+
+.right{display:flex;flex-direction:column;gap:14px;flex:1}
+.tiles{display:flex;flex-direction:column;gap:14px;flex:1}
+.tile{flex:1;min-height:150px;display:flex;align-items:center;gap:26px;padding:24px 30px;border-radius:26px;background:var(--panel);border:2px solid var(--line);color:var(--text);text-decoration:none;-webkit-tap-highlight-color:transparent;-webkit-transition:-webkit-transform .12s,background .2s;transition:transform .12s,background .2s}
+.tile:active{-webkit-transform:scale(.98);transform:scale(.98)}
+.tile .ic{width:88px;height:88px;border-radius:24px;background:var(--panel-2);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.tile .ic svg{width:48px;height:48px}
+.tile .name{font-family:var(--display);font-size:34px;font-weight:600;line-height:1.1}
+.tile .hint{font-size:16px;font-weight:700;color:var(--dim);margin-top:6px;min-height:20px}
+.tile.sent{background:var(--sent)}
+.c-amber{color:var(--amber)} .c-sky{color:var(--sky)} .c-cool{color:var(--cool)} .c-green{color:var(--green)}
+.tile.sent.b-amber{border-color:var(--amber)} .tile.sent.b-sky{border-color:var(--sky)} .tile.sent.b-cool{border-color:var(--cool)} .tile.sent.b-green{border-color:var(--green)}
+
+.gear{position:fixed;right:calc(14px + env(safe-area-inset-right,0px));bottom:calc(14px + env(safe-area-inset-bottom,0px));width:52px;height:52px;border-radius:16px;border:1px solid var(--line);background:var(--panel);color:var(--dim);display:flex;align-items:center;justify-content:center}
+.gear svg{width:24px;height:24px}
+
+.sheet{position:fixed;left:0;right:0;top:0;bottom:0;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;padding:16px}
+.sheet[hidden]{display:none}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:22px;padding:22px;width:100%;max-width:720px;max-height:100%;overflow:auto;-webkit-user-select:text;user-select:text}
+.card h2{margin:0 0 6px;font-size:22px}
+.card p{margin:0 0 14px;color:var(--muted);font-size:15px}
+.row{display:flex;gap:10px;margin-bottom:12px;flex-wrap:wrap}
+.f{display:flex;flex-direction:column;gap:4px;flex:1;min-width:180px}
+.f label{font-size:12px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:var(--dim)}
+.f input,.f select{min-height:48px;border-radius:12px;border:1px solid var(--line);background:var(--bg);color:var(--text);padding:0 12px;font-size:17px}
+.skins{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+.skins button{min-height:48px;padding:0 16px;border-radius:12px;border:2px solid var(--line);background:var(--bg);color:var(--text);font-weight:700}
+.skins button.on{border-color:var(--amber)}
+.bar{display:flex;gap:10px;justify-content:flex-end;align-items:center}
+.bar .msg{margin-right:auto;color:var(--amber);font-size:15px}
+.btn{min-height:48px;padding:0 22px;border-radius:12px;border:1px solid var(--line);background:var(--panel-2);color:var(--text);font-weight:700}
+.btn.primary{background:var(--amber);border-color:var(--amber);color:#1A1206}
+
+@media (min-width:900px){
+  .app{flex-direction:row;height:100%}
+  .left{width:42%}
+  .right{width:58%}
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="left">
+    <div>
+      <div class="clock" id="clock"></div>
+      <div class="date" id="date"></div>
+    </div>
+    <section class="wx" aria-label="Weather">
+      <div class="now">
+        <span id="wxicon"></span>
+        <div class="temp" id="temp">--<sup>&deg;</sup></div>
+        <div>
+          <div class="cond" id="cond">Loading weather</div>
+          <div class="hl" id="hl"></div>
+        </div>
+      </div>
+      <div class="days" id="days"></div>
+      <div class="foot" id="foot"><span>Westminster, MD</span><span id="upd"></span></div>
+    </section>
+  </div>
+  <div class="right">
+    <div class="tiles" id="tiles"></div>
+  </div>
+</div>
+
+<button class="gear" id="gear" type="button" aria-label="Settings">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+</button>
+
+<div class="sheet" id="sheet" hidden>
+  <form class="card" id="form">
+    <h2>Settings</h2>
+    <p>Colors</p>
+    <div class="skins" id="skins"></div>
+    <p>Each button runs the Apple Shortcut with this exact name.</p>
+    <div id="rows"></div>
+    <div class="bar">
+      <span class="msg" id="msg"></span>
+      <button class="btn" type="button" id="cancel">Cancel</button>
+      <button class="btn primary" type="submit">Save</button>
+    </div>
+  </form>
+</div>
+
+<script>
+(function(){
+  var $ = function(id){ return document.getElementById(id); };
+  function esc(s){ return String(s == null ? "" : s).replace(/[&<>"']/g, function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]; }); }
+  function svg(p, w){ return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="' + (w || 1.8) + '" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + p + "</svg>"; }
+  function load(k, d){ try { var v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch (e) { return d; } }
+  function save(k, v){ try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
+
+  var ICONS = {
+    bulb:{n:"Light", c:"amber", p:'<path d="M9 18h6"/><path d="M10 21h4"/><path d="M12 3a6 6 0 0 0-3.6 10.8c.7.6 1.1 1.4 1.1 2.2h5c0-.8.4-1.6 1.1-2.2A6 6 0 0 0 12 3Z"/>'},
+    tree:{n:"Holiday tree", c:"green", p:'<path d="M12 2l3 4h-1.5l3 4H15l3.5 5h-13L9 10H7.5l3-4H9Z"/><path d="M12 15v5"/><path d="M9 20h6"/>'},
+    star:{n:"Decorations", c:"amber", p:'<path d="M12 3l2.6 5.6 6.1.7-4.5 4.2 1.2 6L12 16.6 6.6 19.5l1.2-6L3.3 9.3l6.1-.7Z"/>'},
+    moon:{n:"Night", c:"cool", p:'<path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5Z"/>'},
+    power:{n:"All off", c:"sky", p:'<path d="M12 3v9"/><path d="M6.4 6.4a8 8 0 1 0 11.2 0"/>'},
+    home:{n:"Home", c:"green", p:'<path d="M3 11 12 4l9 7"/><path d="M5 10v10h14V10"/><path d="M10 20v-5h4v5"/>'}
+  };
+  var SKINS = [["midnight","Midnight"],["ember","Ember"],["forest","Forest"],["holiday","Holiday"],["navy","Navy"],["black","Black"],["daylight","Daylight"]];
+  var DEFAULT_TILES = [
+    {label:"Family Room Lights", shortcut:"Family Room Lights", icon:"bulb"},
+    {label:"Holiday Inside Lights", shortcut:"Holiday Inside Lights", icon:"tree"},
+    {label:"Outside Decorations", shortcut:"Outside Decorations", icon:"star"}
+  ];
+  var tiles = load("kp.tiles", DEFAULT_TILES);
+  var skin = load("kp.skin", "daylight");
+
+  function applySkin(){
+    if (skin && skin !== "midnight") document.documentElement.setAttribute("data-skin", skin);
+    else document.documentElement.removeAttribute("data-skin");
+  }
+
+  /* clock */
+  function tick(){
+    var now = new Date();
+    var h = now.getHours(), m = now.getMinutes();
+    var ap = h >= 12 ? "PM" : "AM"; h = h % 12 || 12;
+    $("clock").innerHTML = h + ":" + (m < 10 ? "0" : "") + m + "<small>" + ap + "</small>";
+    $("date").textContent = now.toLocaleDateString("en-US", {weekday:"long", month:"long", day:"numeric"});
+    ageNote();
+  }
+
+  /* tiles */
+  function renderTiles(){
+    $("tiles").innerHTML = tiles.map(function(t, i){
+      var ic = ICONS[t.icon] || ICONS.bulb;
+      return '<a class="tile b-' + ic.c + '" data-i="' + i + '" href="shortcuts://run-shortcut?name=' + encodeURIComponent(t.shortcut) + '">' +
+        '<span class="ic c-' + ic.c + '">' + svg(ic.p) + '</span><span><span class="name" style="display:block">' + esc(t.label) + '</span><span class="hint" style="display:block"></span></span></a>';
+    }).join("");
+  }
+  $("tiles").addEventListener("click", function(e){
+    var a = e.target.closest ? e.target.closest(".tile") : null;
+    if (!a) return;
+    var hint = a.querySelector(".hint");
+    a.classList.add("sent"); hint.textContent = "Running…";
+    setTimeout(function(){ a.classList.remove("sent"); hint.textContent = ""; }, 2500);
+  });
+
+  /* settings */
+  function openSheet(){
+    $("skins").innerHTML = SKINS.map(function(s){ return '<button type="button" data-skin="' + s[0] + '" class="' + (skin === s[0] ? "on" : "") + '">' + s[1] + "</button>"; }).join("");
+    $("rows").innerHTML = tiles.map(function(t, i){
+      var opts = Object.keys(ICONS).map(function(k){ return '<option value="' + k + '"' + (k === t.icon ? " selected" : "") + ">" + ICONS[k].n + "</option>"; }).join("");
+      return '<div class="row"><div class="f"><label for="l' + i + '">Button ' + (i + 1) + '</label><input id="l' + i + '" value="' + esc(t.label) + '" maxlength="28"></div>' +
+        '<div class="f"><label for="s' + i + '">Shortcut name</label><input id="s' + i + '" value="' + esc(t.shortcut) + '" maxlength="80" autocapitalize="off" autocorrect="off"></div>' +
+        '<div class="f" style="flex:.6;min-width:140px"><label for="c' + i + '">Icon</label><select id="c' + i + '">' + opts + "</select></div></div>";
+    }).join("");
+    $("msg").textContent = "";
+    $("sheet").hidden = false;
+  }
+  $("gear").addEventListener("click", openSheet);
+  $("cancel").addEventListener("click", function(){ $("sheet").hidden = true; });
+  $("skins").addEventListener("click", function(e){
+    var b = e.target.closest ? e.target.closest("button") : null;
+    if (!b) return;
+    skin = b.getAttribute("data-skin"); save("kp.skin", skin); applySkin(); openSheet();
+  });
+  $("form").addEventListener("submit", function(e){
+    e.preventDefault();
+    var next = tiles.map(function(t, i){ return {label:$("l" + i).value.trim(), shortcut:$("s" + i).value.trim(), icon:$("c" + i).value}; });
+    for (var i = 0; i < next.length; i++){ if (!next[i].label || !next[i].shortcut){ $("msg").textContent = "Button " + (i + 1) + " needs a name and a shortcut name."; return; } }
+    tiles = next; save("kp.tiles", tiles); renderTiles(); $("sheet").hidden = true;
+  });
+
+  /* weather from the National Weather Service */
+  var LAT = 39.5754, LON = -76.9958, wxAt = null;
+  var WXI = {
+    sun:'<circle cx="12" cy="12" r="4.5"/><path d="M12 1.5v2.5M12 20v2.5M4.6 4.6l1.8 1.8M17.6 17.6l1.8 1.8M1.5 12H4M20 12h2.5M4.6 19.4l1.8-1.8M17.6 6.4l1.8-1.8"/>',
+    moon:'<path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5Z"/>',
+    partly:'<path d="M8 3v1.5M3.5 8H5M4.8 4.8l1 1"/><circle cx="8.5" cy="8.5" r="3"/><path d="M7 20h10a4 4 0 0 0 0-8 5.5 5.5 0 0 0-10.4 1.6A3.2 3.2 0 0 0 7 20Z"/>',
+    cloud:'<path d="M6 19h11a4.5 4.5 0 0 0 0-9 6 6 0 0 0-11.6 2A3.5 3.5 0 0 0 6 19Z"/>',
+    rain:'<path d="M6 15h11a4.5 4.5 0 0 0 0-9 6 6 0 0 0-11.6 2A3.5 3.5 0 0 0 6 15Z"/><path d="M8 18l-1 3M12 18l-1 3M16 18l-1 3"/>',
+    snow:'<path d="M6 15h11a4.5 4.5 0 0 0 0-9 6 6 0 0 0-11.6 2A3.5 3.5 0 0 0 6 15Z"/><path d="M8 19h.01M12 19h.01M16 19h.01M10 22h.01M14 22h.01"/>'
+  };
+  function iconFor(text, day){
+    var t = String(text || "").toLowerCase();
+    if (/snow|sleet|ice|flurr/.test(t)) return "snow";
+    if (/rain|shower|storm|drizzle/.test(t)) return "rain";
+    if (/partly|mostly sunny|mostly clear/.test(t)) return day ? "partly" : "moon";
+    if (/cloud|overcast|fog/.test(t)) return "cloud";
+    return day ? "sun" : "moon";
+  }
+  function getJSON(url){
+    return fetch(url, {headers:{"Accept":"application/geo+json"}}).then(function(r){ if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); });
+  }
+  function refreshWeather(){
+    var pts = load("kp.points.21157", null);
+    var p = pts ? Promise.resolve(pts) : getJSON("https://api.weather.gov/points/" + LAT + "," + LON).then(function(j){
+      var v = {forecast:j.properties.forecast, hourly:j.properties.forecastHourly}; save("kp.points.21157", v); return v;
+    });
+    p.then(function(v){
+      return Promise.all([getJSON(v.forecast), getJSON(v.hourly)]);
+    }).then(function(res){
+      var periods = res[0].properties.periods || [], hourly = res[1].properties.periods || [];
+      var nowP = hourly[0] || periods[0];
+      $("temp").innerHTML = esc(nowP.temperature) + "<sup>&deg;F</sup>";
+      $("cond").textContent = nowP.shortForecast;
+      var ic = iconFor(nowP.shortForecast, nowP.isDaytime);
+      $("wxicon").innerHTML = svg(WXI[ic], 1.6);
+      $("wxicon").firstChild.style.color = ic === "sun" ? "var(--amber)" : (ic === "moon" ? "var(--cool)" : "var(--sky)");
+      // Pair daytime highs with the following night lows.
+      var days = [];
+      for (var i = 0; i < periods.length; i++){
+        var pd = periods[i];
+        if (pd.isDaytime){
+          var night = periods[i + 1] && !periods[i + 1].isDaytime ? periods[i + 1] : null;
+          days.push({name:pd.name, hi:pd.temperature, lo:night ? night.temperature : null, rain:(pd.probabilityOfPrecipitation && pd.probabilityOfPrecipitation.value) || 0});
+        } else if (i === 0){
+          days.push({name:"Tonight", hi:null, lo:pd.temperature, rain:(pd.probabilityOfPrecipitation && pd.probabilityOfPrecipitation.value) || 0});
+        }
+      }
+      var first = days[0];
+      $("hl").textContent = first ? ((first.hi != null ? "High " + first.hi + "°" : "") + (first.hi != null && first.lo != null ? " · " : "") + (first.lo != null ? "Low " + first.lo + "°" : "")) : "";
+      $("days").innerHTML = days.slice(0, 5).map(function(d, i){
+        var label = i === 0 ? (d.name === "Tonight" ? "Tonight" : "Today") : d.name.slice(0, 3);
+        return '<div class="day"><div class="d">' + esc(label) + '</div><div class="hi">' + (d.hi != null ? esc(d.hi) + "°" : "&nbsp;") + '</div><div class="lo">' + (d.lo != null ? esc(d.lo) + "°" : "&nbsp;") + '</div><div class="r">' + (d.rain >= 20 ? esc(d.rain) + "%" : "") + "</div></div>";
+      }).join("");
+      wxAt = new Date(); ageNote();
+    }).catch(function(){
+      try { localStorage.removeItem("kp.points.21157"); } catch (e) {}
+      if (!wxAt) $("cond").textContent = "Weather unavailable, retrying";
+      ageNote();
+    });
+  }
+  function ageNote(){
+    if (!wxAt){ return; }
+    var mins = (Date.now() - wxAt.getTime()) / 60000;
+    var h = wxAt.getHours(), m = wxAt.getMinutes(), ap = h >= 12 ? "PM" : "AM"; h = h % 12 || 12;
+    $("upd").textContent = "Updated " + h + ":" + (m < 10 ? "0" : "") + m + " " + ap;
+    $("foot").className = "foot" + (mins > 90 ? " stale" : "");
+  }
+
+  applySkin(); renderTiles(); tick(); refreshWeather();
+  setInterval(tick, 10000);
+  setInterval(refreshWeather, 20 * 60 * 1000);
+  document.addEventListener("visibilitychange", function(){ if (document.visibilityState === "visible"){ tick(); if (!wxAt || Date.now() - wxAt.getTime() > 15 * 60000) refreshWeather(); } });
+})();
+</script>
+</body>
+</html>
