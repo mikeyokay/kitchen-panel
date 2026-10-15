@@ -182,7 +182,8 @@ button,input,select{font:inherit}
   function renderTiles(){
     $("tiles").innerHTML = tiles.map(function(t, i){
       var ic = ICONS[t.icon] || ICONS.bulb;
-      var run = function(n){ return "shortcuts://run-shortcut?name=" + encodeURIComponent(n); };
+      var back = encodeURIComponent(location.origin + location.pathname);
+      var run = function(n){ return "shortcuts://x-callback-url/run-shortcut?name=" + encodeURIComponent(n) + "&x-success=" + back + "&x-error=" + back + "&x-cancel=" + back; };
       return '<div class="tile"><div class="label"><span class="ic c-' + ic.c + '">' + svg(ic.p) + '</span><span class="name">' + esc(t.label) + '</span></div>' +
         '<div class="acts"><a class="act on b-' + ic.c + '" href="' + esc(run(t.on)) + '" aria-label="' + esc(t.label) + ' on">On</a>' +
         '<a class="act" href="' + esc(run(t.off)) + '" aria-label="' + esc(t.label) + ' off">Off</a></div></div>';
