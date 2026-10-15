@@ -208,7 +208,9 @@ button,input,select{font:inherit}
     {label:"Holiday Inside Lights", on:"Holiday Inside Lights On", off:"Holiday Inside Lights Off", icon:"tree"},
     {label:"Outside Decorations", on:"Outside Decorations On", off:"Outside Decorations Off", icon:"star"}
   ];
-  var tiles = load("kp.tiles2", DEFAULT_TILES);
+  /* Tidy shortcut names: collapse doubled spaces and trim leading or trailing spaces so a stray space never breaks a button */
+  function clean(n){ return String(n == null ? "" : n).replace(/\s+/g, " ").trim(); }
+  var tiles = load("kp.tiles2", DEFAULT_TILES).map(function(t){ return {label:clean(t.label), on:clean(t.on), off:clean(t.off), icon:t.icon}; });
   var skin = load("kp.skin", "daylight");
   var wxMode = load("kp.wxmode", "days");
   var WXMODES = [["days","5 days"],["week","Full week"],["today","Today"],["hourly","Hourly"]];
@@ -280,7 +282,7 @@ button,input,select{font:inherit}
   function renderTiles(){
     $("tiles").innerHTML = tiles.map(function(t, i){
       var ic = ICONS[t.icon] || ICONS.bulb;
-      var run = function(n){ return "shortcuts://run-shortcut?name=" + encodeURIComponent(n); };
+      var run = function(n){ return "shortcuts://run-shortcut?name=" + encodeURIComponent(clean(n)); };
       return '<div class="tile"><div class="label"><span class="ic c-' + ic.c + '">' + svg(ic.p) + '</span><span class="name">' + esc(t.label) + '</span></div>' +
         '<div class="acts"><a class="act on b-' + ic.c + '" href="' + esc(run(t.on)) + '" aria-label="' + esc(t.label) + ' on">On</a>' +
         '<a class="act" href="' + esc(run(t.off)) + '" aria-label="' + esc(t.label) + ' off">Off</a></div></div>';
@@ -321,7 +323,7 @@ button,input,select{font:inherit}
   });
   $("form").addEventListener("submit", function(e){
     e.preventDefault();
-    var next = tiles.map(function(t, i){ return {label:$("l" + i).value.trim(), on:$("n" + i).value.trim(), off:$("o" + i).value.trim(), icon:$("c" + i).value}; });
+    var next = tiles.map(function(t, i){ return {label:clean($("l" + i).value), on:clean($("n" + i).value), off:clean($("o" + i).value), icon:$("c" + i).value}; });
     for (var i = 0; i < next.length; i++){ if (!next[i].label || !next[i].on || !next[i].off){ $("msg").textContent = "Row " + (i + 1) + " needs a name and both shortcut names."; return; } }
     tiles = next; save("kp.tiles2", tiles); renderTiles(); $("sheet").hidden = true;
   });
